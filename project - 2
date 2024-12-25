@@ -1,0 +1,36 @@
+# Function to count the number of words in a given text
+def count_words(text):
+    """
+    This function takes a string input (text) and returns the number of words in it.
+    A word is defined as a sequence of characters separated by spaces.
+    """
+    # Remove leading and trailing whitespace, then split the text by whitespace
+    words = text.strip().split()
+    
+    # Return the number of words in the list
+    return len(words)
+
+# Main function that handles user input, processes the word count, and displays the result
+def main():
+    """
+    Main function to drive the Word Counter program. It prompts the user for input, 
+    processes the input to count words, and displays the word count.
+    """
+    # Prompt user for input
+    user_input = input("Enter a sentence or paragraph to count the words: ")
+    
+    # Handle case where the input is empty or contains only spaces
+    if not user_input.strip():
+        print("Error: Input cannot be empty.")
+        return  # Exit the program early if the input is invalid
+    
+    # Call the count_words function to get the number of words
+    word_count = count_words(user_input)
+    
+    # Display the result
+    print(f"The number of words in your text is: {word_count}")
+
+# Entry point of the program
+if __name__ == "__main__":
+    # Call the main function to start the program
+    main()
