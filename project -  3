@@ -1,0 +1,23 @@
+{
+  "expenses": [
+    {
+      "amount": 15.5,
+      "category": "Food",
+      "description": "Lunch at café"
+    },
+    {
+      "amount": 30.0,
+      "category": "Transport",
+      "description": "Bus ticket"
+    }
+  ]
+}
+def view_expenses_by_category(expenses, category):
+    filtered_expenses = [expense for expense in expenses if expense['category'] == category]
+    total = sum(expense['amount'] for expense in filtered_expenses)
+    print(f"Total for {category}: {total}")
+    for expense in filtered_expenses:
+        print(f"{expense['description']}: {expense['amount']}")
+def monthly_summary(expenses):
+    total_spent = sum(expense['amount'] for expense in expenses)
+    print(f"Total spending this month: {total_spent}")
