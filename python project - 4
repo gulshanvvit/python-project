@@ -1,0 +1,99 @@
+import tkinter as tk
+import numpy as np
+import random
+
+class Game2048:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("2048 Puzzle")
+        self.size = 4
+        self.grid = np.zeros((self.size, self.size), dtype=int)
+        self.score = 0
+        self.create_widgets()
+        self.add_new_tile()
+        self.add_new_tile()
+        self.update_grid()
+        self.root.bind("<Key>", self.handle_keypress)
+
+    def create_widgets(self):
+        self.cells = []
+        self.frame = tk.Frame(self.root)
+        self.frame.pack()
+        for i in range(self.size):
+            row = []
+            for j in range(self.size):
+                label = tk.Label(self.frame, text='', width=5, height=2, font=('Helvetica', 24), bg='lightgray', relief='ridge')
+                label.grid(row=i, column=j, padx=5, pady=5)
+                row.append(label)
+            self.cells.append(row)
+
+    def add_new_tile(self):
+        empty_cells = [(i, j) for i in range(self.size) for j in range(self.size) if self.grid[i, j] == 0]
+        if empty_cells:
+            i, j = random.choice(empty_cells)
+            self.grid[i, j] = 2 if random.random() < 0.9 else 4
+
+    def update_grid(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                value = self.grid[i, j]
+                self.cells[i][j].config(text=str(value) if value else '', bg=self.get_color(value))
+        
+    def get_color(self, value):
+        colors = {
+            0: 'lightgray', 2: 'lightyellow', 4: 'lightgoldenrodyellow', 
+            8: 'orange', 16: 'darkorange', 32: 'red', 64: 'darkred',
+            128: 'purple', 256: 'blue', 512: 'cyan', 1024: 'green', 2048: 'gold'
+        }
+        return colors.get(value, 'black')
+    
+    def move_tiles(self, direction):
+        rotated_grid = np.rot90(self.grid, direction)
+        for i in range(self.size):
+            filtered = rotated_grid[i][rotated_grid[i] != 0]
+            merged = []
+            skip = False
+            for j in range(len(filtered)):
+                if skip:
+                    skip = False
+                    continue
+                if j < len(filtered) - 1 and filtered[j] == filtered[j + 1]:
+                    merged.append(filtered[j] * 2)
+                    self.score += filtered[j] * 2
+                    skip = True
+                else:
+                    merged.append(filtered[j])
+            merged += [0] * (self.size - len(merged))
+            rotated_grid[i] = merged
+        self.grid = np.rot90(rotated_grid, -direction)
+
+    def handle_keypress(self, event):
+        key_map = {'Up': 0, 'Right': 1, 'Down': 2, 'Left': 3}
+        if event.keysym in key_map:
+            prev_grid = self.grid.copy()
+            self.move_tiles(key_map[event.keysym])
+            if not np.array_equal(prev_grid, self.grid):
+                self.add_new_tile()
+                self.update_grid()
+                if self.check_game_over():
+                    self.show_game_over()
+
+    def check_game_over(self):
+        if 2048 in self.grid:
+            return True
+        if 0 in self.grid:
+            return False
+        for i in range(self.size):
+            for j in range(self.size - 1):
+                if self.grid[i, j] == self.grid[i, j + 1] or self.grid[j, i] == self.grid[j + 1, i]:
+                    return False
+        return True
+
+    def show_game_over(self):
+        game_over_label = tk.Label(self.root, text="Game Over!", font=('Helvetica', 20), fg='red')
+        game_over_label.pack()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = Game2048(root)
+    root.mainloop()
